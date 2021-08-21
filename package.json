@@ -1,0 +1,12 @@
+{
+  "name": "pix.js",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Cláudio Medeiros",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "express": "^4.17.1",
+    "qrcode": "^1.4.4"
+  }
+}
