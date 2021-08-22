@@ -4,9 +4,9 @@ const payload = {
   key: 'klawdyo@gmail.com',
   name: 'Jose Claudio Medeiros de Lima',
   city: 'AssuRN',
-  amount: 1.3,
-  // zipcode: 59650000,
-  // txId: 'SINASEFE-18/2021',
+  amount: 1,
+  zipcode: 59650000,
+  txId: 'SINASEFE-18/2021',
 };
 
 
