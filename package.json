@@ -1,7 +1,7 @@
 {
   "name": "@klawdyo/pix.js",
   "description": "pix.js - Pix com br code definido pelo Banco Central do Brasil - Pix copia e cola e qr code da imagem",
-  "version": "0.0.2",
+  "version": "0.4.0",
   "scripts": {
     "test": "yarn build && cls && node tests | tap-spec",
     "build": "babel src --source-maps -d dist"
