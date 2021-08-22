@@ -3,10 +3,10 @@ const { pix, qrcode } = require('./lib/pix');
 const payload = {
   key: 'klawdyo@gmail.com',
   name: 'Jose Claudio Medeiros de Lima',
-  city: 'Assu/RN',
-  price: 1.30,
-  zipcode: 59650000,
-  transactionId: 'SINASEFE-18/2021',
+  city: 'AssuRN',
+  amount: 1.3,
+  // zipcode: 59650000,
+  // txId: 'SINASEFE-18/2021',
 };
 
 
@@ -14,7 +14,7 @@ const payload = {
 const code = pix(payload)
 console.log(code)
 
+
 // Devolve a imagem do qrcode em base64
-const qr = qrcode(payload)
-  .then(url => console.log(url))
+// qrcode(payload).then(url => console.log(url))
 
