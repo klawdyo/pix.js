@@ -149,8 +149,27 @@ const setConfigs = (params = {}) => {
 
             return true
           },
-          value: txId,
         },
+
+        {
+          id: 50,
+          required: true,
+          name: 'Payment System specific template',
+          children: [
+            {
+              id: 0,
+              name: 'Globally Unique Identifier',
+              value: 'BR.GOV.BCB.BRCODE',
+            },
+
+            {
+              id: 1,
+              name: 'Payment System specific',
+              value: '1.0.0',
+            },
+
+          ]
+        }
       ],
     },
   ];
