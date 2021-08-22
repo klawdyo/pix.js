@@ -8,12 +8,7 @@ const { pad, removeAccent } = require('../dist/utils');
  * biblioteca para geração do código seguindo os padrões definidos pelo BCB.
  * 
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key    : Chave pix do recebedor
- *              {String} txId   : ID da Transação  
- *              {Number} amount : Valor da compra
- *              {String} name   : Nome do comprador
- *              {String} city   : Cidade da compra
- *              {Integer}zipcode: CEP da cidade
+ *              {String} description: Descrição da transação
  * 
  * @returns 
  */
@@ -26,6 +21,8 @@ const setConfigs = (params = {}) => {
     amount = null,
     city = null,
     zipcode = null,
+    description = null,
+    isUnique = false,
   } = params;
 
   return [
@@ -59,6 +56,13 @@ const setConfigs = (params = {}) => {
           required: true,
           name: 'PIX Key',
           value: key,
+        },
+        {
+          id: 2,
+          required: false,
+          name: 'Transaction Description',
+          value: description,
+          sanitize: (value) => String(value).substr(0, 25).trim(),
         },
       ],
     },
@@ -215,16 +219,11 @@ const getCRC = code => getString({
  * Gera o código do pix copia e cola
  * 
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key    : Chave pix do recebedor
- *              {String} txId   : ID da Transação
- *              {Number} amount : Valor da compra
- *              {String} name   : Nome do comprador
- *              {String} city   : Cidade da compra
- *              {Integer}zipcode: CEP da cidade
+ *              {String} description: Descrição da transação
  * @returns {String} String do pix copia e cola para as configurações definidas.
  */
-const pix = ({ name, amount, zipcode, city, txId, key }) => {
-  const code = setConfigs({ key, name, amount, zipcode, city, txId })
+const pix = ({ name, amount, zipcode, city, txId, key, description, isUnique }) => {
+  const code = setConfigs({ key, name, amount, zipcode, city, txId, description, isUnique })
     .reduce((accu, curr) => accu + getString(curr), '')
 
   return code + getCRC(code);
