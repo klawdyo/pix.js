@@ -132,7 +132,10 @@ const setConfigs = (params = {}) => {
           validation: value => {
             if (String(value).length > 25)
               throw new Error('txId não pode ter mais de 25 caracteres')
-            else return true
+            if (/[^0-9a-z]+/i.test(value))
+              throw new Error('txId só permite letras e números')
+
+            return true
           },
           value: txId,
         },
