@@ -39,10 +39,10 @@ const payload = {
   // Dados da venda
 
   // Valor
-  amount: 1.3,
+  amount: 50.99,
 
   // Id da transação
-  txId: 'SINASEFE-18/2021',
+  txId: 'PEDIDO 18/2021',
 
   // Dados do comprador
 
@@ -58,9 +58,12 @@ const payload = {
 
 // Devolve o pix copia e cola
 const code = pix(payload);
+// -> 00020101021226390014BR.GOV.BCB.PIX0...
 
 // Devolve a imagem do qrcode em base64
-const qr = qrcode(payload).then((url) => console.log(url));
+// O código gerado pode ser adicionado diretamente a uma tag <img />
+const qr = await qrcode(payload);
+//-> data:image/png;base64,iVBORw0KGgo...
 ```
 
 ## Referências
