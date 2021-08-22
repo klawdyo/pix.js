@@ -224,8 +224,6 @@ const pix = ({ name, amount, zipcode, city, txId, key }) => {
   const code = setConfigs({ key, name, amount, zipcode, city, txId })
     .reduce((accu, curr) => accu + getString(curr), '')
 
-  // console.log(code, CRC(code))
-
   return code + getCRC(code);
 };
 
