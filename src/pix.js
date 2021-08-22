@@ -44,7 +44,7 @@ const setConfigs = (params = {}) => {
       required: false,
       name: 'Point of Initiation Method',
       value: isUnique,
-      sanitize: (value) => (value ? '12' : '11'),
+      sanitize: (value) => (value ? '12' : ''),
     },
 
     {
@@ -217,6 +217,9 @@ const getString = (options = {}) => {
     required = false,
   } = options;
 
+  // Sanitiza o valor, caso exista uma função para isso
+  if (sanitize) value = sanitize(value);
+
   // É obrigatório mas não tem value nem children definido
   if (required && !value && !children) {
     throw new Error(`"${name}" is required`);
@@ -230,9 +233,6 @@ const getString = (options = {}) => {
 
   // Retira os caracteres especiais
   if (value) value = removeAccent(value);
-
-  // Sanitiza o valor, caso exista uma função para isso
-  if (sanitize) value = sanitize(value);
 
   // Transforma o id em uma string com 2 caracteres
   id = pad(id, 2);
@@ -275,12 +275,17 @@ const getCRC = (code) => getString({
 const pix = ({
   name, amount, zipcode, city, txId, key, description, isUnique,
 }) => {
-  const code = setConfigs({
-    key, name, amount, zipcode, city, txId, description, isUnique,
-  })
-    .reduce((accu, curr) => accu + getString(curr), '');
+  try {
+    const code = setConfigs({
+      key, name, amount, zipcode, city, txId, description, isUnique,
+    })
+      .reduce((accu, curr) => accu + getString(curr), '');
 
-  return code + getCRC(code);
+    return code + getCRC(code);
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
 };
 
 /**
