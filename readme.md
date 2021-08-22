@@ -31,18 +31,27 @@ import { pix, qrcode } from ('@klawdyo/pix.js');
 
 ```js
 const payload = {
+  // Dados do Recebedor
+
   // Chave PIX do recebedor
   key: 'klawdyo@gmail.com',
+
   // Dados da venda
+
   // Valor
   amount: 1.3,
+
   // Id da transação
   txId: 'SINASEFE-18/2021',
+
   // Dados do comprador
+
   // Nome
   name: 'Jose Claudio Medeiros de Lima',
+
   // Cidade
   city: 'Assu/RN',
+
   // CEP
   zipcode: 59650000,
 };
