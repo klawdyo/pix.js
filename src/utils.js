@@ -9,9 +9,9 @@ const removeAccent = (str) => {
   const sem_acento =
     'AAAAAAACEEEEIIIIDNOOOOOOUUUUYRsBaaaaaaaceeeeiiiionoooooouuuuybyr';
   let novastr = '';
-  for (i = 0; i < str.length; i++) {
+  for (var i = 0; i < str.length; i++) {
     let troca = false;
-    for (a = 0; a < com_acento.length; a++) {
+    for (var a = 0; a < com_acento.length; a++) {
       if (str.substr(i, 1) == com_acento.substr(a, 1)) {
         novastr += sem_acento.substr(a, 1);
         troca = true;

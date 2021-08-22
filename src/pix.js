@@ -1,7 +1,7 @@
 var QRCode = require('qrcode')
 
-const { CRC } = require('./crc');
-const { pad, removeAccent } = require('./utils');
+const { CRC } = require('../dist/crc');
+const { pad, removeAccent } = require('../dist/utils');
 
 /**
  * Recebe os dados do pix e devolve um objeto de configurações que será usado pela
