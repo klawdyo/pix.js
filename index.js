@@ -1,4 +1,4 @@
-const { pix, qrcode } = require('./lib/pix');
+const { pix, qrcode } = require('./src/pix');
 
 const payload = {
   key: 'klawdyo@gmail.com',

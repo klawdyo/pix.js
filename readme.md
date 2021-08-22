@@ -2,23 +2,45 @@
 
 Biblioteca de geração de códigos pix
 
-## Como usar
+## Instalação
+
+```sh
+# Usando yarn
+yarn add @klawdyo/pix.js
+
+## OU
+# Usando npm
+npm install @klawdyo/pix.js
+
+```
+
+## Importação
 
 ```js
-const { pix, qrcode } = require('./lib/pix');
 
+// Modules
+const { pix, qrcode } = require('@klawdyo/pix.js');
+
+// ES6
+import { pix, qrcode } from ('@klawdyo/pix.js');
+
+
+```
+
+## Como Usar
+
+```js
 const payload = {
   key: 'klawdyo@gmail.com',
+  amount: 1.3,
   name: 'Jose Claudio Medeiros de Lima',
   city: 'Assu/RN',
-  price: 1.3,
   zipcode: 59650000,
-  transactionId: 'SINASEFE-18/2021',
+  txId: 'SINASEFE-18/2021',
 };
 
-// Devolve a linha digitável do pix
+// Devolve o pix copia e cola
 const code = pix(payload);
-console.log(code);
 
 // Devolve a imagem do qrcode em base64
 const qr = qrcode(payload).then((url) => console.log(url));

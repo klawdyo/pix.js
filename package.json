@@ -1,12 +1,26 @@
 {
-  "name": "pix.js",
-  "version": "0.0.1",
+  "name": "@klawdyo/pix.js",
+  "description": "pix.js - Pix com br code definido pelo Banco Central do Brasil - Pix copia e cola e qr code da imagem",
+  "version": "0.0.2",
   "main": "index.js",
   "author": "Cláudio Medeiros",
+  "repository": {
+    "url": "https://github.com/klawdyo/pix.js"
+  },
+  "keywords": [
+    "pix",
+    "pix.js",
+    "bcb",
+    "banco central",
+    "brasil",
+    "brazil",
+    "qrcode",
+    "qr code",
+    "copia e cola"
+  ],
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "express": "^4.17.1",
     "qrcode": "^1.4.4"
   }
 }
