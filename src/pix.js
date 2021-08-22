@@ -9,8 +9,7 @@ const { pad, removeAccent } = require('../dist/utils');
  * 
  * @param {Object} params Parâmetros de configuração da venda
  *              {String} description: Descrição da transação
- * 
- * @returns 
+ *              {Boolean} isUnique  : Define se é uma transação única
  */
 const setConfigs = (params = {}) => {
   //
@@ -37,7 +36,8 @@ const setConfigs = (params = {}) => {
       id: 1,
       required: false,
       name: 'Point of Initiation Method',
-      value: '12',
+      value: isUnique,
+      sanitize: (value) => value ? '12' : null
     },
 
     {
@@ -220,6 +220,7 @@ const getCRC = code => getString({
  * 
  * @param {Object} params Parâmetros de configuração da venda
  *              {String} description: Descrição da transação
+ *              {Boolean} isUnique  : Define se é uma transação única
  * @returns {String} String do pix copia e cola para as configurações definidas.
  */
 const pix = ({ name, amount, zipcode, city, txId, key, description, isUnique }) => {
