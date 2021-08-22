@@ -1,12 +1,16 @@
-//https://github.com/NascentSecureTech/pix-qrcode-utils/blob/01a072f458d63dea2376e631284085405fd8b027/packages/data-schemas/src/data-utils.ts#L9
+/* eslint-disable eqeqeq */
+/* eslint-disable no-bitwise */
+/* eslint-disable no-plusplus */
+/* eslint-disable max-len */
+// https://github.com/NascentSecureTech/pix-qrcode-utils/blob/01a072f458d63dea2376e631284085405fd8b027/packages/data-schemas/src/data-utils.ts#L9
 function numToHex(n, digits = 4) {
-  let hex = n.toString(16).toUpperCase();
+  const hex = n.toString(16).toUpperCase();
 
   if (digits) {
-    return ("0".repeat(digits) + hex).slice(-digits);
+    return ('0'.repeat(digits) + hex).slice(-digits);
   }
 
-  return (hex.length % 2 == 0) ? hex : "0" + hex;
+  return (hex.length % 2 == 0) ? hex : `0${hex}`;
 }
 
 function CRC(str, invert = false) {
@@ -23,14 +27,13 @@ function CRC(str, invert = false) {
     crc = crcTable[j] ^ (crc << 8);
   }
 
-  let answer = ((crc ^ 0) & 0xFFFF);
+  const answer = ((crc ^ 0) & 0xFFFF);
 
-  let hex = numToHex(answer, 4);
+  const hex = numToHex(answer, 4);
 
-  if (invert)
-    return hex.slice(2) + hex.slice(0, 2);
+  if (invert) return hex.slice(2) + hex.slice(0, 2);
 
   return hex;
 }
 
-module.exports = { CRC }
+module.exports = { CRC };

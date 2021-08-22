@@ -1,4 +1,4 @@
-var QRCode = require('qrcode')
+const QRCode = require('qrcode');
 
 const { CRC } = require('../dist/crc');
 const { pad, removeAccent } = require('../dist/utils');
@@ -6,7 +6,7 @@ const { pad, removeAccent } = require('../dist/utils');
 /**
  * Recebe os dados do pix e devolve um objeto de configurações que será usado pela
  * biblioteca para geração do código seguindo os padrões definidos pelo BCB.
- * 
+ *
  * @param {Object} params Parâmetros de configuração da venda
  *              {String} key        : Chave pix do recebedor
  *              {String} txId       : ID da Transação
@@ -44,7 +44,7 @@ const setConfigs = (params = {}) => {
       required: false,
       name: 'Point of Initiation Method',
       value: isUnique,
-      sanitize: (value) => value ? '12' : null
+      sanitize: (value) => (value ? '12' : '11'),
     },
 
     {
@@ -124,30 +124,28 @@ const setConfigs = (params = {}) => {
       required: false,
       name: 'Postal Code',
       value: zipcode,
-      sanitize: (value) =>
-        String(value)
-          .replace(/[^0-9]+/g, '')
-          .substr(0, 15)
-          .trim(),
+      sanitize: (value) => String(value)
+        .replace(/[^0-9]+/g, '')
+        .substr(0, 15)
+        .trim(),
     },
 
     {
       id: 62,
-      required: false,
+      required: true,
       name: 'Aditional Data Field Template',
       children: [
         {
           id: 5,
-          required: false,
+          required: true,
           name: 'Reference Label',
           value: txId,
-          validation: value => {
-            if (String(value).length > 25)
-              throw new Error('txId não pode ter mais de 25 caracteres')
-            if (/[^0-9a-z]+/i.test(value))
-              throw new Error('txId só permite letras e números')
+          validation: (value) => {
+            if (String(value).length > 25) throw new Error('txId não pode ter mais de 25 caracteres');
 
-            return true
+            if (/[^0-9a-z]+/i.test(value)) throw new Error('txId só permite letras e números');
+
+            return true;
           },
         },
 
@@ -168,32 +166,51 @@ const setConfigs = (params = {}) => {
               value: '1.0.0',
             },
 
-          ]
-        }
+          ],
+        },
       ],
     },
   ];
 };
 
 /**
+ * Retorna o número de caracteres de um valor como string
+ * com um número definido de caracteres.
+ *
+ * @example
+ * getLength('Claudio', 3)
+ * // -> '007'
+ *
+ * @param {String}  text  Valor
+ * @param {Integer} length Número de caracteres
+ */
+function getLength(text, length = 2) {
+  return pad(text.length, length);
+}
+
+/**
  * Cria um trecho do código a partir das configurações definidas
- * 
+ *
  * @param {Object} options  Opções de configuração
  *          {Integer} id      : Id do trecho do pix
  *          {String}  name    : Nome do trecho. Somente para referência
  *          {String}  value   : Valor que o trecho terá
  *          {String}  children: Array de objetos contendo as mesmas opções deste objeto options
- *          {String}  sanitize: Função que retornará o valor deste trecho. Ex.: Converte para float de 2 dígitos, limita um tamanho etc.
+ *          {String}  sanitize: Função que retornará o valor deste trecho.
+ *                              Ex.: Converte para float de 2 dígitos, limita um tamanho etc.
  *          {Boolean} required: True/False para determinar se este trecho deve ser obrigatório
  *
  * @returns {String} Trecho padronizado para ser adicionado ao pix
  */
 const getString = (options = {}) => {
-  // 
+  //
   let {
     id,
-    name,
     value,
+  } = options;
+
+  const {
+    name,
     children,
     sanitize,
     validation,
@@ -209,7 +226,7 @@ const getString = (options = {}) => {
   if (!required && !value && !children) return '';
 
   // Valida, caso exista uma validação
-  if (validation) validation(value)
+  if (validation) validation(value);
 
   // Retira os caracteres especiais
   if (value) value = removeAccent(value);
@@ -221,8 +238,7 @@ const getString = (options = {}) => {
   id = pad(id, 2);
 
   // Se tiver um children, processe seu conteúdo antes de gerar o valor atual
-  if (children)
-    value = children.reduce((accu, curr) => accu + getString(curr), '');
+  if (children) value = children.reduce((accu, curr) => accu + getString(curr), '');
 
   // Devolva id com 2 caractes, o tamanho com 2 caracteres e o valor
   return `${id}${getLength(value)}${value}`;
@@ -230,21 +246,21 @@ const getString = (options = {}) => {
 
 /**
  * CRC16 é o último trecho do código. É usado para validar o código anterior.
- * 
+ *
  * @param {String} code  Código do pix copia e cola
  * @returns {String} Trecho de validação do pix
  */
-const getCRC = code => getString({
+const getCRC = (code) => getString({
   id: 63,
-  // O código CRC gerado terá 4 caracteres e o ID é 63. 
-  // Para a geração correta do código, é nenecessário utilizar o "6304" que 
+  // O código CRC gerado terá 4 caracteres e o ID é 63.
+  // Para a geração correta do código, é nenecessário utilizar o "6304" que
   // seria adicionado naturalmente por getString()
-  value: CRC(code + '6304')
-})
+  value: CRC(`${code}6304`),
+});
 
 /**
  * Gera o código do pix copia e cola
- * 
+ *
  * @param {Object} params Parâmetros de configuração da venda
  *              {String} key        : Chave pix do recebedor
  *              {String} txId       : ID da Transação
@@ -256,44 +272,29 @@ const getCRC = code => getString({
  *              {Boolean} isUnique  : Define se é uma transação única
  * @returns {String} String do pix copia e cola para as configurações definidas.
  */
-const pix = ({ name, amount, zipcode, city, txId, key, description, isUnique }) => {
-  const code = setConfigs({ key, name, amount, zipcode, city, txId, description, isUnique })
-    .reduce((accu, curr) => accu + getString(curr), '')
+const pix = ({
+  name, amount, zipcode, city, txId, key, description, isUnique,
+}) => {
+  const code = setConfigs({
+    key, name, amount, zipcode, city, txId, description, isUnique,
+  })
+    .reduce((accu, curr) => accu + getString(curr), '');
 
   return code + getCRC(code);
 };
 
 /**
  * Retorna o base64 da imagem
- * 
- * @param {Object} payload 
+ *
+ * @param {Object} payload
  * @return {String} Código base64 da imagem
  */
 const qrcode = async (payload) => {
-  try {
-    const code = pix(payload);
-    return QRCode.toDataURL(code);
-  } catch (err) {
-    console.error(err)
-  }
-}
-
-/**
- * Retorna o número de caracteres de um valor como string
- * com um número definido de caracteres. 
- * 
- * @example
- * getLength('Claudio', 3)
- * // -> '007'
- * 
- * @param {String}  text  Valor
- * @param {Integer} length Número de caracteres
- */
-function getLength(text, length = 2) {
-  return pad(text.length, length);
+  const code = pix(payload);
+  return QRCode.toDataURL(code);
 };
 
 module.exports = {
   pix,
   qrcode,
-}
+};
