@@ -1,16 +1,13 @@
-const { pix, qrcode } = require('../index');
+// Exemplos usando o código processado pelo babel
+const { qrcode } = require('../dist/pix');
 
-const payload = {
-  key: 'klawdyo@gmail.com',
+qrcode({
+  key: '3066362f-020c-4b46-9c1b-4ee3cf8a1bcc',
+  amount: 349.99,
+  txId: '12345',
   name: 'Jose Claudio Medeiros de Lima',
-  city: 'AssuRN',
-  amount: 1,
+  city: 'Assu/RN',
   zipcode: 59650000,
-  txId: 'SINASEFE-18/2021',
-};
-
-
-
-// Devolve a imagem do qrcode em base64
-qrcode(payload).then(console.log)
-
+  description: 'Parcela 1/24 - Sistema + Site',
+  isUnique: true,
+}).then(console.log);

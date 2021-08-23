@@ -69,7 +69,7 @@ const setConfigs = (params = {}) => {
           required: false,
           name: 'Transaction Description',
           value: description,
-          sanitize: (value) => String(value).substr(0, 25).trim(),
+          sanitize: (value) => (!value ? '' : String(value).substr(0, 25).trim()),
         },
       ],
     },
@@ -93,7 +93,7 @@ const setConfigs = (params = {}) => {
       required: false,
       name: 'Transaction Amount',
       value: amount, // Valor em inteiro
-      sanitize: (value) => Number.parseFloat(value).toFixed(2),
+      sanitize: (value) => (!value ? '' : Number.parseFloat(value).toFixed(2)),
     },
 
     {
