@@ -1,1 +1,1 @@
-require('./crc.test.js');
+require('./crc.test');

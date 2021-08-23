@@ -1,10 +1,15 @@
 {
   "name": "@klawdyo/pix.js",
   "description": "pix.js - Pix com br code definido pelo Banco Central do Brasil - Pix copia e cola e qr code da imagem",
-  "version": "0.4.1",
+  "version": "0.7.2",
   "scripts": {
     "test": "yarn build && cls && node tests | tap-spec",
-    "build": "babel src --source-maps -d dist"
+    "build": "babel src --source-maps -d dist",
+    "lint": "eslint src/** --ignore-path .gitignore .",
+    "lint:fix": "eslint src/** --ignore-path .gitignore . --fix"
+  },
+  "eslintConfig": {
+    "extends": "airbnb"
   },
   "dependencies": {
     "@babel/runtime": "^7.15.3",
@@ -16,6 +21,9 @@
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "core-js": "^3.16.2",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.1",
     "regenerator-runtime": "^0.13.9",
     "tap-spec": "^2.2.2",
     "tape": "^4.13.0"
