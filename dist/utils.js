@@ -1,5 +1,12 @@
 "use strict";
 
+/* eslint-disable eqeqeq */
+
+/* eslint-disable no-plusplus */
+
+/* eslint-disable camelcase */
+
+/* eslint-disable no-param-reassign */
 var pad = function pad(value) {
   var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
   return String(value).padStart(length, '0');

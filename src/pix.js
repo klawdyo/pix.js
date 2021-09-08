@@ -8,14 +8,14 @@ const { pad, removeAccent } = require('../dist/utils');
  * biblioteca para geração do código seguindo os padrões definidos pelo BCB.
  *
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key        : Chave pix do recebedor
- *              {String} txId       : ID da Transação
- *              {Number} amount     : Valor da compra
- *              {String} name       : Nome do comprador
- *              {String} city       : Cidade da compra
- *              {Integer}zipcode    : CEP da cidade
- *              {String} description: Descrição da transação
- *              {Boolean} isUnique  : Define se é uma transação única
+ *              {String}  key         : Chave pix do recebedor
+ *              {String}  txId        : ID da Transação
+ *              {Number}  amount      : Valor da compra
+ *              {String}  name        : Nome do comprador
+ *              {String}  city        : Cidade da compra
+ *              {Integer} zipcode     : CEP da cidade
+ *              {String}  description : Descrição da transação
+ *              {Boolean} isUnique    : Define se é uma transação única
  * @returns {Object} Objeto com as configurações
  */
 const setConfigs = (params = {}) => {
@@ -85,7 +85,7 @@ const setConfigs = (params = {}) => {
       id: 53,
       required: true,
       name: 'Transaction Currency',
-      value: '986', // “986” – BRL: real brasileiro - ISO4217
+      value: '986', // "986" – BRL: real brasileiro - ISO4217
     },
 
     {
@@ -262,13 +262,13 @@ const getCRC = (code) => getString({
  * Gera o código do pix copia e cola
  *
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key        : Chave pix do recebedor
- *              {String} txId       : ID da Transação
- *              {Number} amount     : Valor da compra
- *              {String} name       : Nome do comprador
- *              {String} city       : Cidade da compra
- *              {Integer}zipcode    : CEP da cidade
- *              {String} description: Descrição da transação
+ *              {String}  key        : Chave pix do recebedor
+ *              {String}  txId       : ID da Transação
+ *              {Number}  amount     : Valor da compra
+ *              {String}  name       : Nome do comprador
+ *              {String}  city       : Cidade da compra
+ *              {Integer} zipcode    : CEP da cidade
+ *              {String}  description: Descrição da transação
  *              {Boolean} isUnique  : Define se é uma transação única
  * @returns {String} String do pix copia e cola para as configurações definidas.
  */
