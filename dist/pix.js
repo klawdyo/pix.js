@@ -17,16 +17,17 @@ var _require2 = require('../dist/utils'),
 /**
  * Recebe os dados do pix e devolve um objeto de configurações que será usado pela
  * biblioteca para geração do código seguindo os padrões definidos pelo BCB.
- * 
+ *
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key    : Chave pix do recebedor
- *              {String} txId   : ID da Transação  
- *              {Number} amount : Valor da compra
- *              {String} name   : Nome do comprador
- *              {String} city   : Cidade da compra
- *              {Integer}zipcode: CEP da cidade
- * 
- * @returns 
+ *              {String}  key         : Chave pix do recebedor
+ *              {String}  txId        : ID da Transação
+ *              {Number}  amount      : Valor da compra
+ *              {String}  name        : Nome do comprador
+ *              {String}  city        : Cidade da compra
+ *              {Integer} zipcode     : CEP da cidade
+ *              {String}  description : Descrição da transação
+ *              {Boolean} isUnique    : Define se é uma transação única
+ * @returns {Object} Objeto com as configurações
  */
 
 
@@ -44,7 +45,11 @@ var setConfigs = function setConfigs() {
       _params$city = params.city,
       city = _params$city === void 0 ? null : _params$city,
       _params$zipcode = params.zipcode,
-      zipcode = _params$zipcode === void 0 ? null : _params$zipcode;
+      zipcode = _params$zipcode === void 0 ? null : _params$zipcode,
+      _params$description = params.description,
+      description = _params$description === void 0 ? null : _params$description,
+      _params$isUnique = params.isUnique,
+      isUnique = _params$isUnique === void 0 ? false : _params$isUnique;
   return [{
     id: 0,
     required: true,
@@ -54,7 +59,10 @@ var setConfigs = function setConfigs() {
     id: 1,
     required: false,
     name: 'Point of Initiation Method',
-    value: '12'
+    value: isUnique,
+    sanitize: function sanitize(value) {
+      return value ? '12' : '';
+    }
   }, {
     id: 26,
     required: true,
@@ -69,6 +77,14 @@ var setConfigs = function setConfigs() {
       required: true,
       name: 'PIX Key',
       value: key
+    }, {
+      id: 2,
+      required: false,
+      name: 'Transaction Description',
+      value: description,
+      sanitize: function sanitize(value) {
+        return !value ? '' : String(value).substr(0, 25).trim();
+      }
     }]
   }, {
     id: 52,
@@ -79,7 +95,7 @@ var setConfigs = function setConfigs() {
     id: 53,
     required: true,
     name: 'Transaction Currency',
-    value: '986' // “986” – BRL: real brasileiro - ISO4217
+    value: '986' // "986" – BRL: real brasileiro - ISO4217
 
   }, {
     id: 54,
@@ -88,7 +104,7 @@ var setConfigs = function setConfigs() {
     value: amount,
     // Valor em inteiro
     sanitize: function sanitize(value) {
-      return Number.parseFloat(value).toFixed(2);
+      return !value ? '' : Number.parseFloat(value).toFixed(2);
     }
   }, {
     id: 58,
@@ -121,28 +137,61 @@ var setConfigs = function setConfigs() {
     }
   }, {
     id: 62,
-    required: false,
+    required: true,
     name: 'Aditional Data Field Template',
     children: [{
       id: 5,
-      required: false,
+      required: true,
       name: 'Reference Label',
+      value: txId,
       validation: function validation(value) {
-        if (String(value).length > 25) throw new Error('txId não pode ter mais de 25 caracteres');else return true;
-      },
-      value: txId
+        if (String(value).length > 25) throw new Error('txId não pode ter mais de 25 caracteres');
+        if (/[^0-9a-z]+/i.test(value)) throw new Error('txId só permite letras e números');
+        return true;
+      }
+    }, {
+      id: 50,
+      required: true,
+      name: 'Payment System specific template',
+      children: [{
+        id: 0,
+        name: 'Globally Unique Identifier',
+        value: 'BR.GOV.BCB.BRCODE'
+      }, {
+        id: 1,
+        name: 'Payment System specific',
+        value: '1.0.0'
+      }]
     }]
   }];
 };
 /**
+ * Retorna o número de caracteres de um valor como string
+ * com um número definido de caracteres.
+ *
+ * @example
+ * getLength('Claudio', 3)
+ * // -> '007'
+ *
+ * @param {String}  text  Valor
+ * @param {Integer} length Número de caracteres
+ */
+
+
+function getLength(text) {
+  var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+  return pad(text.length, length);
+}
+/**
  * Cria um trecho do código a partir das configurações definidas
- * 
+ *
  * @param {Object} options  Opções de configuração
  *          {Integer} id      : Id do trecho do pix
  *          {String}  name    : Nome do trecho. Somente para referência
  *          {String}  value   : Valor que o trecho terá
  *          {String}  children: Array de objetos contendo as mesmas opções deste objeto options
- *          {String}  sanitize: Função que retornará o valor deste trecho. Ex.: Converte para float de 2 dígitos, limita um tamanho etc.
+ *          {String}  sanitize: Função que retornará o valor deste trecho.
+ *                              Ex.: Converte para float de 2 dígitos, limita um tamanho etc.
  *          {Boolean} required: True/False para determinar se este trecho deve ser obrigatório
  *
  * @returns {String} Trecho padronizado para ser adicionado ao pix
@@ -151,15 +200,17 @@ var setConfigs = function setConfigs() {
 
 var getString = function getString() {
   var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  // 
+  //
   var id = options.id,
-      name = options.name,
-      value = options.value,
+      value = options.value;
+  var name = options.name,
       children = options.children,
       sanitize = options.sanitize,
       validation = options.validation,
       _options$required = options.required,
-      required = _options$required === void 0 ? false : _options$required; // É obrigatório mas não tem value nem children definido
+      required = _options$required === void 0 ? false : _options$required; // Sanitiza o valor, caso exista uma função para isso
+
+  if (sanitize) value = sanitize(value); // É obrigatório mas não tem value nem children definido
 
   if (required && !value && !children) {
     throw new Error("\"".concat(name, "\" is required"));
@@ -170,9 +221,7 @@ var getString = function getString() {
 
   if (validation) validation(value); // Retira os caracteres especiais
 
-  if (value) value = removeAccent(value); // Sanitiza o valor, caso exista uma função para isso
-
-  if (sanitize) value = sanitize(value); // Transforma o id em uma string com 2 caracteres
+  if (value) value = removeAccent(value); // Transforma o id em uma string com 2 caracteres
 
   id = pad(id, 2); // Se tiver um children, processe seu conteúdo antes de gerar o valor atual
 
@@ -184,7 +233,7 @@ var getString = function getString() {
 };
 /**
  * CRC16 é o último trecho do código. É usado para validar o código anterior.
- * 
+ *
  * @param {String} code  Código do pix copia e cola
  * @returns {String} Trecho de validação do pix
  */
@@ -193,22 +242,24 @@ var getString = function getString() {
 var getCRC = function getCRC(code) {
   return getString({
     id: 63,
-    // O código CRC gerado terá 4 caracteres e o ID é 63. 
-    // Para a geração correta do código, é nenecessário utilizar o "6304" que 
+    // O código CRC gerado terá 4 caracteres e o ID é 63.
+    // Para a geração correta do código, é nenecessário utilizar o "6304" que
     // seria adicionado naturalmente por getString()
-    value: CRC(code + '6304')
+    value: CRC("".concat(code, "6304"))
   });
 };
 /**
  * Gera o código do pix copia e cola
- * 
+ *
  * @param {Object} params Parâmetros de configuração da venda
- *              {String} key    : Chave pix do recebedor
- *              {String} txId   : ID da Transação
- *              {Number} amount : Valor da compra
- *              {String} name   : Nome do comprador
- *              {String} city   : Cidade da compra
- *              {Integer}zipcode: CEP da cidade
+ *              {String}  key        : Chave pix do recebedor
+ *              {String}  txId       : ID da Transação
+ *              {Number}  amount     : Valor da compra
+ *              {String}  name       : Nome do comprador
+ *              {String}  city       : Cidade da compra
+ *              {Integer} zipcode    : CEP da cidade
+ *              {String}  description: Descrição da transação
+ *              {Boolean} isUnique  : Define se é uma transação única
  * @returns {String} String do pix copia e cola para as configurações definidas.
  */
 
@@ -219,24 +270,33 @@ var pix = function pix(_ref) {
       zipcode = _ref.zipcode,
       city = _ref.city,
       txId = _ref.txId,
-      key = _ref.key;
-  var code = setConfigs({
-    key: key,
-    name: name,
-    amount: amount,
-    zipcode: zipcode,
-    city: city,
-    txId: txId
-  }).reduce(function (accu, curr) {
-    return accu + getString(curr);
-  }, ''); // console.log(code, CRC(code))
+      key = _ref.key,
+      description = _ref.description,
+      isUnique = _ref.isUnique;
 
-  return code + getCRC(code);
+  try {
+    var code = setConfigs({
+      key: key,
+      name: name,
+      amount: amount,
+      zipcode: zipcode,
+      city: city,
+      txId: txId,
+      description: description,
+      isUnique: isUnique
+    }).reduce(function (accu, curr) {
+      return accu + getString(curr);
+    }, '');
+    return code + getCRC(code);
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
 };
 /**
  * Retorna o base64 da imagem
- * 
- * @param {Object} payload 
+ *
+ * @param {Object} payload
  * @return {String} Código base64 da imagem
  */
 
@@ -248,46 +308,22 @@ var qrcode = /*#__PURE__*/function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.prev = 0;
             code = pix(payload);
             return _context.abrupt("return", QRCode.toDataURL(code));
 
-          case 5:
-            _context.prev = 5;
-            _context.t0 = _context["catch"](0);
-            console.error(_context.t0);
-
-          case 8:
+          case 2:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[0, 5]]);
+    }, _callee);
   }));
 
   return function qrcode(_x) {
     return _ref2.apply(this, arguments);
   };
 }();
-/**
- * Retorna o número de caracteres de um valor como string
- * com um número definido de caracteres. 
- * 
- * @example
- * getLength('Claudio', 3)
- * // -> '007'
- * 
- * @param {String}  text  Valor
- * @param {Integer} length Número de caracteres
- */
 
-
-function getLength(text) {
-  var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
-  return pad(text.length, length);
-}
-
-;
 module.exports = {
   pix: pix,
   qrcode: qrcode
