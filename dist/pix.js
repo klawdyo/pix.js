@@ -6,6 +6,7 @@ var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"))
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
+/* eslint-disable no-use-before-define */
 var QRCode = require('qrcode');
 
 var _require = require('../dist/crc'),
@@ -76,7 +77,10 @@ var setConfigs = function setConfigs() {
       id: 1,
       required: true,
       name: 'PIX Key',
-      value: key
+      value: key,
+      sanitize: function sanitize(value) {
+        return sanitizeKey(value);
+      }
     }, {
       id: 2,
       required: false,
@@ -232,6 +236,78 @@ var getString = function getString() {
   return "".concat(id).concat(getLength(value)).concat(value);
 };
 /**
+ * Devolve o tipo da chave informada
+ *
+ * getKeyType('170.803.140-54'); // -> 'cpf'
+ * getKeyType('170803140-54'); // -> 'cpf'
+ * getKeyType('17080314054'); // -> 'cpf'
+ * getKeyType('38.262.543/0001-50'); // -> 'cnpj'
+ * getKeyType('382625430001-50'); // -> 'cnpj'
+ * getKeyType('38262543000150'); // -> 'cnpj'
+ * getKeyType('klawdyo@gmail.com'); // -> 'email'
+ * getKeyType('+5584996964567'); // -> 'phone'
+ * getKeyType('+55 (84) 9 9696-4567'); // -> 'phone'
+ * getKeyType('+5584996964567'); // -> 'phone'
+ * getKeyType('3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'); // -> 'random'
+ *
+ * @param {String} pixKey Chave
+ * @returns {String} Um do resultados: cpf, cnpj, email, phone, random
+ */
+
+
+function getKeyType(pixKey) {
+  var regexes = {
+    email: /@/,
+    phone: /^\+/,
+    cpf: /^(\d{3}\.?\d{3}\.?\d{3}-?\d{2})$/,
+    cnpj: /^(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2})$/,
+    random: /^[0-9a-f]{4,}-[0-9a-f]{4,}-[0-9a-f]{4,}-[0-9a-f]{4,}-[0-9a-f]{4,}$/
+  };
+  var match = Object.keys(regexes).find(function (key) {
+    return regexes[key].test(pixKey);
+  });
+  return match;
+}
+/**
+ * Devolve o tipo da chave informada
+ *
+ * sanitizeKey('170.803.140-54'); // -> '17080314054'
+ * sanitizeKey('170803140-54'); // -> '17080314054'
+ * sanitizeKey('17080314054'); // -> '17080314054'
+ * sanitizeKey('38.262.543/0001-50'); // -> '38262543000150'
+ * sanitizeKey('382625430001-50'); // -> '38262543000150'
+ * sanitizeKey('38262543000150'); // -> '38262543000150'
+ * sanitizeKey('klawdyo@gmail.com'); // -> 'klawdyo@gmail.com'
+ * sanitizeKey('+5584996964567'); // -> '+5584996964567'
+ * sanitizeKey('+55 (84) 9 9696-4567'); // -> '+5584996964567'
+ * sanitizeKey('+5584996964567'); // -> '+5584996964567'
+ * sanitizeKey('3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'); // -> '3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'
+ *
+ * @param {String} pixKey Chave
+ * @returns {String} Um do resultados: cpf, cnpj, email, phone, random
+ */
+
+
+function sanitizeKey(pixKey) {
+  var sanitizable = {
+    cpf: {
+      rgx: /[^0-9]+/g,
+      replace: ''
+    },
+    cnpj: {
+      rgx: /[^0-9]+/g,
+      replace: ''
+    },
+    phone: {
+      rgx: /[^+0-9]+/g,
+      replace: ''
+    }
+  };
+  var sanitizableKeys = Object.keys(sanitizable);
+  var keyType = getKeyType(pixKey);
+  return sanitizableKeys.includes(keyType) ? String(pixKey).replace(sanitizable[keyType].rgx, sanitizable[keyType].replace) : pixKey;
+}
+/**
  * CRC16 é o último trecho do código. É usado para validar o código anterior.
  *
  * @param {String} code  Código do pix copia e cola
@@ -326,6 +402,8 @@ var qrcode = /*#__PURE__*/function () {
 
 module.exports = {
   pix: pix,
-  qrcode: qrcode
+  qrcode: qrcode,
+  getKeyType: getKeyType,
+  sanitizeKey: sanitizeKey
 };
 //# sourceMappingURL=pix.js.map
