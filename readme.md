@@ -139,6 +139,10 @@ getKeyType('3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'); // ->'random'
 
 ### sanitizeKey
 
+`sanitizeKey(pixKey)` recebe uma chave pix e realiza a limpeza dos caracteres especiais de acordo com o tipo dela.
+
+Esta função já é chamada quando as informações para geração do pix são processadas e não é necessário chamar novamente, caso o objetivo seja apenas limpar a chave.
+
 ```js
 import { sanitizeKey } from '@klawdyo/pix.js';
 
@@ -163,6 +167,16 @@ sanitizeKey('+55 (84) 9 9696-4567');
 sanitizeKey('3066362f-020c-4b46-9c1b-4ee3cf8a1bcc');
 // -> '3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'
 ```
+
+## Changelog
+
+- **10/09/2021**:
+  - 0.9.0 - Adicionada sanitizeKey() que limpa os caracteres não permitidos de acordo com o tipo da chave
+  - 0.8.0 - Adicionada getKeyType() que identifica o tipo da chave pix
+
+## To Do
+
+- Função parse() irá receber o código copia e cola e irá retornar as partes e os seus valores
 
 ## Especificidades
 
