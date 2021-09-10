@@ -64,6 +64,7 @@ const setConfigs = (params = {}) => {
           required: true,
           name: 'PIX Key',
           value: key,
+          sanitize: (value) => sanitizeKey(value),
         },
         {
           id: 2,
@@ -279,6 +280,38 @@ function getKeyType(pixKey) {
 }
 
 /**
+ * Devolve o tipo da chave informada
+ *
+ * sanitizeKey('170.803.140-54'); // -> '17080314054'
+ * sanitizeKey('170803140-54'); // -> '17080314054'
+ * sanitizeKey('17080314054'); // -> '17080314054'
+ * sanitizeKey('38.262.543/0001-50'); // -> '38262543000150'
+ * sanitizeKey('382625430001-50'); // -> '38262543000150'
+ * sanitizeKey('38262543000150'); // -> '38262543000150'
+ * sanitizeKey('klawdyo@gmail.com'); // -> 'klawdyo@gmail.com'
+ * sanitizeKey('+5584996964567'); // -> '+5584996964567'
+ * sanitizeKey('+55 (84) 9 9696-4567'); // -> '+5584996964567'
+ * sanitizeKey('+5584996964567'); // -> '+5584996964567'
+ * sanitizeKey('3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'); // -> '3066362f-020c-4b46-9c1b-4ee3cf8a1bcc'
+ *
+ * @param {String} pixKey Chave
+ * @returns {String} Um do resultados: cpf, cnpj, email, phone, random
+ */
+function sanitizeKey(pixKey) {
+  const sanitizable = {
+    cpf: { rgx: /[^0-9]+/g, replace: '' },
+    cnpj: { rgx: /[^0-9]+/g, replace: '' },
+    phone: { rgx: /[^+0-9]+/g, replace: '' },
+  };
+  const sanitizableKeys = Object.keys(sanitizable);
+  const keyType = getKeyType(pixKey);
+
+  return sanitizableKeys.includes(keyType)
+    ? String(pixKey).replace(sanitizable[keyType].rgx, sanitizable[keyType].replace)
+    : pixKey;
+}
+
+/**
  * CRC16 é o último trecho do código. É usado para validar o código anterior.
  *
  * @param {String} code  Código do pix copia e cola
@@ -337,4 +370,5 @@ module.exports = {
   pix,
   qrcode,
   getKeyType,
+  sanitizeKey,
 };
