@@ -1,10 +1,10 @@
 {
   "name": "@klawdyo/pix.js",
   "description": "pix.js - Pix com br code definido pelo Banco Central do Brasil - Pix copia e cola e qr code da imagem",
-  "version": "0.7.3-alpha-2",
+  "version": "0.9.0",
   "scripts": {
     "test": "yarn build && cls && node tests | tap-spec",
-    "build": "echo \"buildando\" babel src --source-maps -d dist",
+    "build": "babel src --source-maps -d dist",
     "lint": "eslint src/** --ignore-path .gitignore .",
     "lint:fix": "eslint src/** --ignore-path .gitignore . --fix",
     "prepublish": "yarn build"
