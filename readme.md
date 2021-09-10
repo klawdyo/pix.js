@@ -1,6 +1,6 @@
 # pix.js
 
-Biblioteca de geração de códigos pix
+Biblioteca de geração de códigos de pagamento PIX.
 
 ## Instalação
 
